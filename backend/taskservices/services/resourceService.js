@@ -170,14 +170,17 @@ export const createBooking = async (data, token) => {
         if (conflict) {
             return { code: 409, message: 'Time slot already booked. Please choose a different time.' };
         }
-
-        const booking = new Booking({ ...data, status: 0, updatedAt: new Date() });
+const booking = new Booking({
+    ...data,
+    status: 1,
+    updatedAt: new Date()
+});
         await booking.save();
 
         // Log to booking_history and usage_logs
         await logBookingHistory(
             booking._id.toString(), data.resourceId, data.resourceName,
-            payload.crid, 'CREATED', null, 0, data.slotDate, data.startTime, data.endTime
+            payload.crid, 'CREATED', null, 1, data.slotDate, data.startTime, data.endTime
         );
         await logUsage('CREATE_BOOKING', payload.crid, data.resourceId, data.resourceName);
 

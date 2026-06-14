@@ -76,17 +76,30 @@ export default function ResourceBooking() {
         setTab("mybookings");
     }
 };
+const cancelBooking = async (id) => {
+  if (!window.confirm("Cancel this booking?")) return;
+
+  const res = await apicall(
+    `/bookingservice/cancelbooking/${id}`,
+    "DELETE"
+  );
+
+  console.log("Cancel response:", res);
+
+  if (res.code === 200) {
+    setMsg("Booking cancelled successfully");
+    loadBookings();
+  } else {
+    setMsg(res.message || "Failed to cancel booking");
+  }
+};
 
   const confirmBooking = async (id) => {
     const res = await apicall(`/bookingservice/updatebooking/${id}`, "PUT", { status: 1 });
     if (res.code === 200) loadBookings();
   };
 
-  const cancelBooking = async (id) => {
-    if (!confirm("Cancel this booking?")) return;
-    const res = await apicall(`/bookingservice/cancelbooking/${id}`, "DELETE");
-    if (res.code === 200) loadBookings();
-  };
+ 
 
   const totalPages = Math.ceil(total / SIZE);
 
@@ -155,16 +168,18 @@ export default function ResourceBooking() {
                       {STATUS_LABELS[b.status]}
                     </span>
                   </td>
-                  <td>
-                    <div style={{display:"flex",gap:"6px",flexWrap:"wrap"}}>
-                    {b.status === 0 && (
-                      <button className="confirm-btn" onClick={() => confirmBooking(b._id)}>✅ Confirm</button>
-                    )}
-                    {b.status !== 2 && (
-                      <button className="cancel-btn" onClick={() => cancelBooking(b._id)}>❌ Cancel</button>
-                    )}
-                  </div>
-                  </td>
+                 <td>
+  <div style={{display:"flex",gap:"6px",flexWrap:"wrap"}}>
+    {b.status !== 2 && (
+      <button
+        className="cancel-btn"
+        onClick={() => cancelBooking(b._id)}
+      >
+        ❌ Cancel
+      </button>
+    )}
+  </div>
+</td>
                 </tr>
               ))}
               {bookings.length === 0 && <tr><td colSpan={6} style={{ textAlign: "center", color: "#999" }}>No bookings yet</td></tr>}
