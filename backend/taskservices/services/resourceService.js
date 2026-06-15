@@ -74,7 +74,13 @@ export const getAllResources = async (page, size) => {
 
 export const getResourceById = async (id) => {
     try {
-        const resource = await Resource.findById(id);
+        console.log("ID:", id);
+
+        const resource = await Resource.findOne({ _id: id });
+
+        console.log("RESOURCE:", resource);
+
+        
         if (!resource) return { code: 404, message: 'Resource not found' };
         return { code: 200, resource };
     } catch (err) {
@@ -86,7 +92,11 @@ export const updateResource = async (id, data, token) => {
     try {
         const payload = jwt.verify(token, SECRETE_KEY);
         data.updatedAt = new Date();
-        const resource = await Resource.findByIdAndUpdate(id, data, { new: true });
+       const resource = await Resource.findOneAndUpdate(
+    { _id: id },
+    data,
+    { new: true }
+);
         if (!resource) return { code: 404, message: 'Resource not found' };
         await upsertEmbedding(resource);
         await logUsage('UPDATE_RESOURCE', payload.crid, id, resource.name);
@@ -192,6 +202,7 @@ const booking = new Booking({
 
 export const getAllBookings = async (page, size, token) => {
     try {
+
         const payload = jwt.verify(token, SECRETE_KEY);
         const skip = (page - 1) * size;
         let query = {};

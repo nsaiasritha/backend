@@ -17,13 +17,15 @@ export default function Login({
     try {
       const res = await apicall("/authservice/signin", "POST", form);
       if (res.code === 200) {
-        onLogin(res.jwt);
-      } else {
-        setError(res.message || "Login failed");
-      }
-    } catch {
-      setError("Cannot connect to server");
-    }
+    onLogin(res.jwt);
+} else {
+    console.error("Login Failed:", res.message);
+    setError(res.message || "Login failed");
+}
+    } catch (err) {
+    console.error("Server Error:", err);
+    setError("Cannot connect to server");
+}
     setLoading(false);
   };
 
